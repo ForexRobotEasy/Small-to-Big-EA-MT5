@@ -1,0 +1,91 @@
+mql5
+//+------------------------------------------------------------------+
+//|                   Small to Big EA MT5                             |
+//|                                                                   |
+//|       Developer: Forex Robot Easy Team                            |
+//|       Website: forexroboteasy.com                                 |
+//+------------------------------------------------------------------+
+
+// Define input parameters
+input double LotSize = 0.01;    // Default lot size
+input double TakeProfit = 50;   // Default take profit level
+input double StopLoss = 30;     // Default stop loss level
+
+// Define global variables
+double currentBalance;          // Current account balance
+double currentEquity;           // Current account equity
+double currentProfit;           // Current profit or loss
+int ticket;                     // Order ticket number
+bool tradeEnabled = false;      // Flag to enable trading
+
+//+------------------------------------------------------------------+
+//| Custom initialization function                                    |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+   // Get initial account balance, equity, and profit
+   currentBalance = AccountInfoDouble(ACCOUNT_BALANCE);
+   currentEquity = AccountInfoDouble(ACCOUNT_EQUITY);
+   currentProfit = currentEquity - currentBalance;
+
+   // Enable trading
+   tradeEnabled = true;
+
+   return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Custom deinitialization function                                  |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+   // Disable trading
+   tradeEnabled = false;
+}
+
+//+------------------------------------------------------------------+
+//| Custom trading function                                           |
+//+------------------------------------------------------------------+
+void OnTick()
+{
+   // Check if trading is enabled
+   if (!tradeEnabled)
+      return;
+
+   // Check for trend and execute trades accordingly
+   if (CheckTrend())
+   {
+      // Open a buy order
+      ticket = OrderSend(Symbol(), OP_BUY, LotSize, Ask, 0, Ask - StopLoss * Point, Ask + TakeProfit * Point, 'Buy Order', 0, 0, Green);
+      if (ticket > 0)
+      {
+         Print('Buy order opened successfully');
+      }
+      else
+      {
+         Print('Error opening buy order: ', GetLastError());
+      }
+
+      // Open a sell order
+      ticket = OrderSend(Symbol(), OP_SELL, LotSize, Bid, 0, Bid + StopLoss * Point, Bid - TakeProfit * Point, 'Sell Order', 0, 0, Red);
+      if (ticket > 0)
+      {
+         Print('Sell order opened successfully');
+      }
+      else
+      {
+         Print('Error opening sell order: ', GetLastError());
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Custom trend checking function                                    |
+//+------------------------------------------------------------------+
+bool CheckTrend()
+{
+   // Implement trend checking logic here
+
+   // Return true if trend is present, false otherwise
+   return true;
+}
